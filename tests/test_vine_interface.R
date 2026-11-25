@@ -1,0 +1,18 @@
+source("R/wrr_tvine.R", local = TRUE, encoding = "UTF-8")
+cfg<-wrr_config("smoke")
+set.seed(891)
+Z<-matrix(rnorm(900),300,3);Z[,2]<-.6*Z[,1]+.8*Z[,2]
+U<-pnorm(Z);colnames(U)<-c("XLE","XLF","GLD")
+p<-seq_len(300)/sum(seq_len(300));V<-wrr_weighted_ranks(U,p)
+a<-list(type="vine",fit=wrr_vine_fit(V,p,"tail",cfg))
+b<-list(type="vine",fit=wrr_vine_fit(V,p,"general",cfg))
+mix<-list(type="mixture",members=list(a,b))
+ll<-wrr_model_ll(mix,U[1:12,,drop=FALSE])
+expected<-log((exp(wrr_model_ll(a,U[1:12,,drop=FALSE]))+
+               exp(wrr_model_ll(b,U[1:12,,drop=FALSE])))/2)
+stopifnot(max(abs(ll-expected))<1e-12)
+S<-wrr_sim(mix,2000,colnames(U),73)
+stopifnot(identical(dim(S),c(2000L,3L)),all(is.finite(S)),all(S>0 & S<1))
+stopifnot(max(abs(colMeans(S)-.5))<.05)
+stopifnot(identical(S,wrr_sim(mix,2000,colnames(U),73)))
+cat("DEFAULT FAMILY POOLS, DIRECT WEIGHTS AND MIXTURE CHECKS PASSED.\n")

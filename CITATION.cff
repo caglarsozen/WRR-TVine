@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this research software, please acknowledge the authors and cite the associated research."
+title: "WRR-TVine: Weighted Rolling Regime-Adaptive Vine Copulas"
+type: software
+authors:
+  - family-names: "Sözen"
+    given-names: "Mervenur"
+    orcid: "https://orcid.org/0000-0001-5603-5382"
+  - family-names: "Sözen"
+    given-names: "Çağlar"
+    orcid: "https://orcid.org/0000-0002-3732-5058"
+repository-code: "https://github.com/caglarsozen/WRR-TVine"
+license: MIT
+keywords:
+  - vine copula
+  - energy-finance
+  - tail risk
+  - probabilistic forecasting
+  - portfolio risk management

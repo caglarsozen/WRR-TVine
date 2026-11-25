@@ -53,3 +53,21 @@ rsconnect/
 src/*.o
 src/*.so
 src/*.dll
+
+# Project-local inputs, outputs and checkpoints
+/data/*
+!/data/README.md
+/results/
+/analysis_output/
+/test_outputs_synthetic/
+/WRR_TVINE_FULL_RESULTS.zip
+/*_RUN_CONSOLE.log
+*.rds
+*.RDS
+*.tmp
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.DS_Store
+Thumbs.db

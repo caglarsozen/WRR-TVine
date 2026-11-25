@@ -1,0 +1,13 @@
+spec,dimension,model,window,refit,family,validation_log_score
+primary,6,WRR_direct,750,10,tail,1.85784012597028
+primary,6,rolling_vine,500,10,tail,1.81888072409688
+primary,7,WRR_direct,1000,10,tail,2.15891819379979
+primary,7,rolling_vine,500,10,tail,2.10827627739735
+empirical_margin,6,WRR_direct,750,10,tail,1.8710412532151
+empirical_margin,6,rolling_vine,500,10,general,1.91008233757325
+empirical_margin,7,WRR_direct,500,10,tail,2.21512903123662
+empirical_margin,7,rolling_vine,500,10,general,2.2433660608637
+train_winsor,6,WRR_direct,750,10,tail,1.8699284668323
+train_winsor,6,rolling_vine,500,10,tail,1.8296329248824
+train_winsor,7,WRR_direct,750,10,tail,2.16390683134156
+train_winsor,7,rolling_vine,500,10,tail,2.11905574813059
