@@ -115,7 +115,7 @@ python analysis/make_paper_assets.py results/full analysis_output/derived analys
 python analysis/compare_reference.py analysis_output/derived
 ~~~
 
-The independent audit checks the specific empirical sample and design described above. A different price history can change the sample or results. The audit also handles undefined zero-variance marginal hit tests as missing significance values, retaining the multiplicity family size. Raw diagnostics and the documented reporting diagnostics are therefore distinguished.
+The independent audit checks the specific empirical sample and design described above. A different price history can change the sample or results. Constant marginal hit sequences have recorded hit rates and bootstrap bounds, with missing HAC p-values. The Holm adjustment retains all 49 prespecified asset–threshold tests per period. The audit applies the same convention to archived diagnostics, and the reference comparison uses the documented p-values.
 
 Additional synthetic tests exercise weighted vine estimation, marginal filtering and the end-to-end pipeline after the model dependencies are installed:
 

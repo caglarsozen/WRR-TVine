@@ -6,8 +6,8 @@ wrr_verify_results <- function(root, out_dir = file.path("analysis_output","veri
   f <- function(p, n) read.csv(file.path(p,"tables",n), check.names=FALSE)
   status <- readLines(file.path(root,"RUN_STATUS.txt"),warn=FALSE)
   stopifnot(any(grepl("^COMPLETED full",status)))
-  cfg <- dget(file.path(root,"configuration.R"))
-  stopifnot(identical(cfg$mode,"full"), isTRUE(cfg$run_robustness),
+  cfg <- readRDS(file.path(root,"configuration.rds"))
+  stopifnot(is.list(cfg), identical(cfg$mode,"full"), isTRUE(cfg$run_robustness),
             cfg$scenarios==10000L, cfg$estimation_B==199L,
             cfg$margin_window==750L, cfg$q==.10, cfg$k==3L)
   u <- f(root,"marginal_PIT.csv")

@@ -400,8 +400,7 @@ wrr_event <- function(U,cols,q=.1,k=3L) {
   as.integer(rowSums(U[,cols,drop=FALSE]<=q)>=k)
 }
 wrr_weighted_ranks <- function(U,p) {
-  # Weighted mid-CDF with ties grouped. This changes the estimation target:
-  # it is the copula of the tilted empirical law, not a new marginal PIT forecast.
+  # Group ties when constructing weighted empirical mid-distributions.
   p <- p/sum(p); out <- matrix(NA_real_,nrow(U),ncol(U),dimnames=dimnames(U))
   for (j in seq_len(ncol(U))) {
     vals <- sort(unique(U[,j])); g <- match(U[,j],vals)
@@ -660,19 +659,25 @@ wrr_pit_diagnostics <- function(pits,cfg) {
     if(n<10)next
     ks<-suppressWarnings(ks.test(u,"punif",exact=FALSE))
     for(q in qs) {
-      hit<-as.numeric(u<=q);d<-hit-q;hac<-wrr_hac(d,cfg$hac_lag)
+      hit<-as.numeric(u<=q)
+      # A constant hit series has no variance for the HAC test.
+      hac_p<-if(all(hit==hit[1L])) NA_real_ else unname(wrr_hac(hit-q,cfg$hac_lag)["p"])
       bs<-wrr_with_seed(wrr_seed(cfg$seed,a,s,q),replicate(cfg$inference_B,
            mean(hit[wrr_block_indices(n,min(20L,n))])))
       ci<-quantile(bs,c(.025,.975),names=FALSE)
       rows[[length(rows)+1L]]<-data.frame(asset=a,split=s,n=n,q=q,hit_rate=mean(hit),
-        hit_ci_low=ci[1],hit_ci_high=ci[2],calibration_hac_p=hac["p"],
+        hit_ci_low=ci[1],hit_ci_high=ci[2],calibration_hac_p=hac_p,
         ks_stat=unname(ks$statistic),ks_p_iid_reference=ks$p.value,
         lb_z_p=Box.test(z,lag=min(10,n-2),type="Ljung-Box")$p.value,
         lb_z2_p=Box.test(z^2,lag=min(10,n-2),type="Ljung-Box")$p.value)
     }
   }
   tab<-do.call(rbind,rows)
-  tab$calibration_holm_p<-ave(tab$calibration_hac_p,tab$split,FUN=function(x)p.adjust(x,"holm"))
+  tab$calibration_holm_p<-NA_real_
+  for(s in unique(tab$split)) {
+    i<-which(tab$split==s)
+    tab$calibration_holm_p[i]<-p.adjust(tab$calibration_hac_p[i],"holm",n=length(i))
+  }
   tab
 }
 wrr_network <- function(U,states,train,q=.1) {

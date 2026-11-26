@@ -36,6 +36,36 @@ tied<-matrix(c(.1,.1,.2,.4),ncol=1);q<-wrr_weighted_ranks(tied,c(.1,.2,.3,.4))[,
 check(max(abs(q-c(.15,.15,.45,.8)))<1e-12,"weighted ranks handle ties exactly")
 # CDF-tilting counterexample: changing historical weights can distort margins.
 check(wrr_weighted_ks(c(.1,.3,.6,.9),c(.7,.1,.1,.1))>.3,"weighted marginal distortion is detectable")
+
+# All thresholds belong to the declared family, including undefined tests.
+pit_seed <- wrr_with_seed(321L, matrix(runif(80L * 7L, .02, .98), ncol = 7L))
+pit_seed[, 1L] <- 0.22 + 0.76 * pit_seed[, 1L]
+colnames(pit_seed) <- LETTERS[1:7]
+pit_check <- wrr_pit_diagnostics(
+  list(U = pit_seed, Z = qnorm(pit_seed), split = rep(c("validation", "test"), each = 40L)),
+  cfg
+)
+constant <- pit_check$hit_rate %in% c(0, 1)
+check(
+  all(is.na(pit_check$calibration_hac_p[constant])) &&
+    all(is.na(pit_check$calibration_holm_p[constant])) &&
+    all(pit_check$hit_ci_low[constant] == pit_check$hit_rate[constant]) &&
+    all(pit_check$hit_ci_high[constant] == pit_check$hit_rate[constant]) &&
+    all(is.finite(pit_check$calibration_hac_p[!constant])),
+  "constant PIT hits retain frequencies and intervals without HAC significance"
+)
+for (period in c("validation", "test")) {
+  period_pit <- pit_check[pit_check$split == period, ]
+  p <- period_pit$calibration_hac_p
+  adjusted <- p.adjust(p, "holm", n = 49L)
+  reduced <- p.adjust(p, "holm", n = sum(!is.na(p)))
+  check(
+    nrow(period_pit) == 49L && any(adjusted > reduced, na.rm = TRUE) &&
+      identical(period_pit$calibration_holm_p, adjusted),
+    paste("PIT Holm adjustment retains the 49-test family in", period)
+  )
+}
+
 # Nondegenerate event tilting and the corresponding proper-score penalties.
 b <- c(.10,.20,.30,.40); K <- c(0,1,2,3); A <- as.integer(K>=2)
 a <- sum(b*A); lambda <- 2; tilted <- b*(1+lambda*A)/(1+lambda*a)
